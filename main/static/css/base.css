@@ -3,6 +3,16 @@
 :root {
     --box-shadow: 0px 1px 1px rgba(0,0,0,0.363)
 }
+@font-face{
+    font-family: 'mili';
+    src: url(../font/ofont.ru_Shonen.ttf);
+}
+
+span {
+    font-family: 'mili', serif;
+    font-size: 48px;
+    line-height: 0;
+}
 
 body {
      font-family: "Outfit", sans-serif;
