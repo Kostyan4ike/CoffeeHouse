@@ -1,0 +1,28 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Оплата через ЮMoney{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2>Перенаправление на оплату...</h2>
+    <p>Ваш заказ №{{ order.id }} уже оплачен (тестовый режим).</p>
+    <p>Сейчас вы будете перенаправлены на платёжный шлюз ЮMoney для демонстрации.</p>
+    
+    <form action="https://yoomoney.ru/quickpay/confirm.xml" method="post" id="yoomoney-form">
+        <input type="hidden" name="receiver" value="{{ wallet }}">
+        <input type="hidden" name="quickpay-form" value="shop">
+        <input type="hidden" name="targets" value="Оплата заказа №{{ order.id }}">
+        <input type="hidden" name="sum" value="{{ total }}" data-type="number">
+        <input type="hidden" name="comment" value="Заказ №{{ order.id }}">
+        <input type="hidden" name="successURL" value="{{ success_url }}">
+        <input type="hidden" name="need-fio" value="false">
+        <input type="hidden" name="need-email" value="false">
+        <input type="hidden" name="need-phone" value="false">
+        <input type="hidden" name="need-address" value="false">
+        <button type="submit" class="btn btn-primary mt-3">Перейти к оплате</button>
+    </form>
+    
+    <a href="{% url 'payment:completed' %}" class="btn btn-secondary mt-3">Пропустить</a>
+</div>
+{% endblock %}

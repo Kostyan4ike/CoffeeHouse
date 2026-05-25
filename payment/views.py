@@ -1,51 +1,47 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from decimal import Decimal
 from django.urls import reverse
-from orders.models import Order
 from django.conf import settings
-import stripe
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-stripe.api_version = settings.STRIPE_API_VERSION
+from orders.models import Order
 
 def payment_process(request):
     order_id = request.session.get('order_id', None)
     order = get_object_or_404(Order, id=order_id)
 
-    if request.method == "POST":
-        success_url = request.build_absolute_url(
-            reverse('payment:completed')
-        )
-        cancel_url = request.build_absolute_url(
-            reverse('payment:canceled')
-        )
+    if request.method == 'POST':
+        order.paid = True
+        order.save()
+        
+        return redirect('payment:yoomoney_redirect', order_id=order.id)
+    
+    return render(request, 'payment/process.html', {'order': order})
 
-        session_data = {
-            'mode': 'payment',
-            'client_reference_id': order.id,
-            'success_url': success_url,
-            'cancel_url': cancel_url,
-            'line_items': []
-        }
-        for item in order.items.all():
-            discounted_price = item.product.sell_price()
-            session_data['line_items'].append({
-                'price_data': {
-                    'unit_amount': int(discounted_price * Decimal('100')),
-                    'currency': 'rub',
-                    'product_data': {
-                        'name': item.product.name,
-                    },
-                },
-                'quantity': item.quantity,
-            })
-        session = stripe.checkout.Session.create(**session_data)
-        return redirect(session.url, code=303)
-    else:
-        return render(request, 'payment/process.html', locals())
-
+def yoomoney_redirect(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    total = order.get_total_cost()
+    
+    # Создаём форму для отправки на ЮMoney
+    context = {
+        'order': order,
+        'total': total,
+        'wallet': settings.YOOMONEY_WALLET,
+        'success_url': request.build_absolute_uri(reverse('payment:completed')),
+        'cancel_url': request.build_absolute_uri(reverse('payment:canceled')),
+    }
+    return render(request, 'payment/yoomoney_form.html', context)
 
 def payment_completed(request):
+    order_id = request.session.get('order_id', None)
+    print(f"DEBUG: order_id from session = {order_id}")  # ← добавить
+    
+    if order_id:
+        order = get_object_or_404(Order, id=order_id)
+        print(f"DEBUG: order found, paid before = {order.paid}")  # ← добавить
+        order.paid = True
+        order.save()
+        print(f"DEBUG: paid after = {order.paid}")  # ← добавить
+    else:
+        print("DEBUG: No order_id in session!")
+    
     return render(request, 'payment/completed.html')
 
 def payment_canceled(request):
