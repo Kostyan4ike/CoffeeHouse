@@ -30,7 +30,7 @@
             </div>
             <div class="header-profile pt-2">
                 <a href="{% url "cart:cart_detail" %}"> <img src="{% static 'img/Чаенка.png' %}" class="Чай" alt=""></a>
-                <a href="#" class="mt-2">ВОЙТИ</a>
+                <a href="{% url "user:login" %}" class="mt-2">ВОЙТИ</a>
                 <p class="cart-quantity">
                     {% with cart_quantity=cart|length%}
                         {% if cart_quantity > 0 %}
