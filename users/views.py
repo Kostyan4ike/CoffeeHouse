@@ -40,25 +40,39 @@ def registration(request):
         form = UserRegistrationForm()
     return render(request, 'users/registration.html', {'form': form})
 
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         form = ProfileForm(data=request.POST, instance=request.user,
+#                            files=request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request,'Профиль изменён')
+#             return HttpResponseRedirect(reverse('user:profile'))
+#     else:
+#         form = ProfileForm(instance=request.user)
+
+#     orders = Order.objects.filter(user=request.user).prefetch_related(
+#         'items',
+#         queryset=OrderItem.objects.select_related('product'),
+#     ).order_by('id')
+#     return render(request, 'users/profile.html',
+#                   {'form': form,
+#                    'orders': orders})
 @login_required
 def profile(request):
     if request.method == 'POST':
-        form = ProfileForm(data=request.POST, instance=request.user,
-                           files=request.FILES)
+        form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request,'Профиль изменён')
-            return HttpResponseRedirect(reverse('user:profile'))
+            messages.success(request, 'Профиль изменён')
+            return HttpResponseRedirect(reverse('users:profile'))
     else:
         form = ProfileForm(instance=request.user)
 
-    orders = Order.objects.filter(user=request.user).prefetch_related(
-        'items',
-        querset=OrderItem.objects.select_related('product'),
-    ).order_by('id')
-    return render(request, 'users/profile.html',
-                  {'form': form,
-                   'orders': orders})
+    orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-id')
+    
+    return render(request, 'users/profile.html', {'form': form, 'orders': orders})
 
 
 def logout(request):
