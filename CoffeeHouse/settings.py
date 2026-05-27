@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-5uuy%xf5+_hm1)uv&nz#z$alf4z)1*ajq=yw1+@w4ebw6j#*dg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.serveo.net',
+    '.serveousercontent.com',         
+    'coffeehouse.serveousercontent.com', 
+]
 
 
 # Application definition
